@@ -11,7 +11,7 @@ MongoClient.connect('mongodb://localhost:27017/TodoApp', (err, client) => {
     console.log('Connected successfully to mongoDB server.');
     const db = client.db('TodoApp');
 
-    /*
+
     db.collection('Todos').insertOne({
         description: 'Walk the dog 7:00 PM',
         done: false
@@ -30,7 +30,7 @@ MongoClient.connect('mongodb://localhost:27017/TodoApp', (err, client) => {
         if (err) return console.log('Unable to insert to Users', err);
         console.log(result.ops[0]._id.getTimestamp());
     })
-    */
+
 
     client.close();
 
