@@ -23,9 +23,10 @@ let User = mongoose.model('User', UserSchema, 'Users');
 // ---------- Main code ------------
 
 let app = express();
-
 app.use(bodyParser.json());
 
+
+//ADD NEW TODO
 app.post('/todos', (req, res) => {
 
     let newTodo = new Todo({
@@ -40,9 +41,22 @@ app.post('/todos', (req, res) => {
 
 });
 
+app.get('/todos', (req, res) => {
+    Todo.find().then(todos => {
+        res.send({
+            todos
+        });
+    }, error => {
+        res.status(400).send(error);
+    });
+});
+
+//Set up port 3000
 app.listen(3000, () => {
     console.log(`App hosted on port 3000`);
 });
+
+
 
 module.exports = {
     app
