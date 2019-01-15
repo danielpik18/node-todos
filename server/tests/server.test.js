@@ -13,11 +13,21 @@ let {
 
 let Todo = mongoose.model('Todo', TodoSchema, 'Todos');
 
+const todos = [{
+        description: 'First test todo'
+    },
+    {
+        description: 'Second test fker'
+    }
+];
+
 beforeEach(done => {
-    Todo.remove({}).then(() => done());
+    Todo.remove({}).then(() => {
+        return Todo.insertMany(todos);
+    }).then(() => done());
 });
 
-//testing
+//POST TESTING
 describe('POST /todos', () => {
     it('Should create a new Todo', done => {
         let description = 'Todo description';
@@ -34,7 +44,9 @@ describe('POST /todos', () => {
             .end((error, res) => {
                 if (error) return done(error);
 
-                Todo.find().then(todos => {
+                Todo.find({
+                    description
+                }).then(todos => {
                     expect(todos.length).toBe(1);
                     expect(todos[0].description).toBe(description);
                     done();
@@ -51,9 +63,22 @@ describe('POST /todos', () => {
                 if (error) return done(error);
 
                 Todo.find().then(todos => {
-                    expect(todos.length).toBe(0);
+                    expect(todos.length).toBe(2);
                     done();
                 }).catch(err => done(err));
             });
+    });
+});
+
+//GET TESTING
+describe('GET/todos', () => {
+    it('Should fetch all todos', done => {
+        request(app)
+            .get('/todos')
+            .expect(200)
+            .expect(res => {
+                expect(res.body.todos.length).toBe(2)
+            })
+            .end(done);
     });
 });
