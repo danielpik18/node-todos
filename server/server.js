@@ -23,6 +23,7 @@ let User = mongoose.model('User', UserSchema, 'Users');
 // ---------- Main code ------------
 
 let app = express();
+const port = process.env.PORT || 3000;
 app.use(bodyParser.json());
 
 
@@ -51,9 +52,19 @@ app.get('/todos', (req, res) => {
     });
 });
 
-//Set up port 3000
-app.listen(3000, () => {
-    console.log(`App hosted on port 3000`);
+//GET/todos/:id
+app.get('/todos/:id', (req, res) => {
+    Todo.findById(req.params.id).then(todo => {
+        if (!todo) return res.status(404).send();
+        res.send(todo);
+    }).catch(error => res.status(400).send({
+        error: error.message
+    }));
+});
+
+//Set up port
+app.listen(port, () => {
+    console.log(`App hosted on port ${port}`);
 });
 
 
