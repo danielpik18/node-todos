@@ -3,6 +3,9 @@ const {
 } = require('../db/mongoose');
 const expect = require('expect');
 const request = require('supertest');
+const {
+    ObjectID
+} = require('mongodb');
 
 const {
     app
@@ -14,9 +17,11 @@ let {
 let Todo = mongoose.model('Todo', TodoSchema, 'Todos');
 
 const todos = [{
+        _id: new ObjectID(),
         description: 'First test todo'
     },
     {
+        _id: new ObjectID(),
         description: 'Second test fker'
     }
 ];
@@ -79,6 +84,34 @@ describe('GET/todos', () => {
             .expect(res => {
                 expect(res.body.todos.length).toBe(2)
             })
+            .end(done);
+    });
+});
+
+//GET/todos:id TESTING
+describe('GET/todos/:id', () => {
+    //this.timeout(10000);
+    it('Should return the todo doc', done => {
+        request(app)
+            .get(`/todos/${todos[0]._id.toHexString()}`)
+            .expect(200)
+            .expect(res => {
+                expect(res.body.todo.description).toBe(todos[0].description)
+            })
+            .end(done);
+    });
+
+    it('Should return 404 if todo not found', done => {
+        request(app)
+            .get(`/todos/${new ObjectID().toHexString()}`)
+            .expect(404)
+            .end(done);
+    });
+
+    it('Should return 400 if data is invalid', done => {
+        request(app)
+            .get(`/todos/1337`)
+            .expect(400)
             .end(done);
     });
 });
