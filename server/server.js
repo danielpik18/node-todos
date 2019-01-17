@@ -74,3 +74,15 @@ app.listen(port, () => {
 module.exports = {
     app
 };
+
+// /DELETE
+app.delete('/todos/:id', (req, res) => {
+    Todo.findByIdAndDelete(req.params.id).then(todo => {
+        if (!todo) return res.status(404).send();
+        res.send({
+            todo
+        });
+    }).catch(error => res.status(400).send({
+        error: error.message
+    }));
+})
