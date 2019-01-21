@@ -2,6 +2,9 @@ const _ = require('lodash');
 const express = require('express');
 const bodyParser = require('body-parser');
 
+const {
+    authenticate
+} = require('./middleware/authenticate');
 let {
     mongoose
 } = require('./db/mongoose');
@@ -11,14 +14,11 @@ let {
     TodoSchema
 } = require('./schemas/TodoSchema');
 let {
-    UserSchema
+    User
 } = require('./schemas/UserSchema');
 
 // -- MODELS
 let Todo = mongoose.model('Todo', TodoSchema, 'Todos');
-let User = mongoose.model('User', UserSchema, 'Users');
-
-
 
 // ---------- Main code ------------
 
@@ -130,4 +130,9 @@ app.post('/users', (req, res) => {
     }).then(token => {
         res.header('x-auth', token).send(newUser);
     }).catch(error => res.status(400).send(error));
+});
+
+//GET/users/me
+app.get('/users/me', authenticate, (req, res) => {
+    res.send(req.user);
 });
