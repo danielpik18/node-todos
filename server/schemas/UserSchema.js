@@ -7,7 +7,9 @@ const bcrypt = require('bcryptjs');
 const validator = require('validator');
 const jwt = require('jsonwebtoken');
 const _ = require('lodash');
+const uniqueValidator = require('mongoose-unique-validator');
 
+//SCHEMA
 let UserSchema = new Schema({
     email: {
         type: String,
@@ -37,6 +39,7 @@ let UserSchema = new Schema({
     }]
 });
 
+//METHODS (Instance methods)
 UserSchema.methods.toJSON = function () {
     let userObj = this.toObject();
     return _.pick(userObj, ['_id', 'email']);
@@ -59,6 +62,7 @@ UserSchema.methods.generateAuthToken = function () {
     });
 };
 
+//STATIC METHODS (Model methods)
 UserSchema.statics.findByToken = function (token) {
     let decodedUser;
 
@@ -76,6 +80,25 @@ UserSchema.statics.findByToken = function (token) {
     });
 };
 
+UserSchema.statics.findByCredentials = function (email, password) {
+    return this.findOne({
+        email
+    }).then(user => {
+        if (!user) return Promise.reject();
+
+        return new Promise((resolve, reject) => {
+            bcrypt.compare(password, user.password, (error, res) => {
+                if (res) {
+                    resolve(user);
+                } else {
+                    reject();
+                }
+            })
+        });
+    });
+};
+
+//Middleware before saving user
 UserSchema.pre('save', function (next) {
     if (this.isModified('password')) {
         bcrypt.genSalt(10, (err, salt) => {
@@ -89,6 +112,9 @@ UserSchema.pre('save', function (next) {
     }
 });
 
+UserSchema.plugin(uniqueValidator);
+
+//MODEL
 let User = mongoose.model('User', UserSchema, 'Users');
 
 module.exports = {

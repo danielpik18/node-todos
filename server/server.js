@@ -118,7 +118,24 @@ app.post('/users', (req, res) => {
         return newUser.generateAuthToken();
     }).then(token => {
         res.header('x-auth', token).send(newUser);
-    }).catch(error => res.status(400).send(error));
+    }).catch(error => res.status(400).send({
+
+    }));
+});
+
+//POST/users/login
+app.post('/users/login', (req, res) => {
+    let body = _.pick(req.body, ['email', 'password']);
+
+    User.findByCredentials(body.email, body.password).then(user => {
+        return user.generateAuthToken().then(token => {
+            res.header('x-auth', token).send({
+                user
+            });
+        });
+    }).catch(error => {
+        res.status(400).send();
+    });
 });
 
 //GET/users/me

@@ -3,6 +3,9 @@ const Schema = mongoose.Schema;
 mongoose.connect('mongodb://localhost:27017/TodoApp', {
     useNewUrlParser: true
 });
+
+mongoose.set('useCreateIndex', true);
+
 module.exports = {
     mongoose,
     Schema
