@@ -1,6 +1,8 @@
-let mongoose = require('mongoose');
-let Schema = mongoose.Schema;
-mongoose.connect('mongodb://localhost:27017/TodoApp');
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
+mongoose.connect('mongodb://localhost:27017/TodoApp', {
+    useNewUrlParser: true
+});
 module.exports = {
     mongoose,
     Schema

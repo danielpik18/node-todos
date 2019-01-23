@@ -1,4 +1,4 @@
-let {
+const {
     mongoose,
     Schema
 } = require('../db/mongoose');
@@ -20,6 +20,8 @@ const TodoSchema = new Schema({
     }
 });
 
+let Todo = mongoose.model('Todo', TodoSchema, 'Todos');
+
 module.exports = {
-    TodoSchema
+    Todo
 };
