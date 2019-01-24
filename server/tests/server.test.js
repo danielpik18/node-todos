@@ -242,7 +242,7 @@ describe('POST/users', () => {
                     expect(user).toBeTruthy();
                     expect(user.password).not.toBe(password);
                     done();
-                });
+                }).catch(err => done(err));
             });
     });
 
@@ -278,4 +278,64 @@ describe('POST/users', () => {
             .end(done);
 
     });
-})
+});
+
+
+
+//POST/users/login
+describe('POST/users/login', () => {
+    it('Should login user and return auth token', done => {
+        request(app)
+            .post('/users/login')
+            .send({
+                email: users[1].email,
+                password: users[1].password
+            })
+            .expect(200)
+            .expect(res => {
+                expect(res.headers['x-auth']).toBeTruthy();
+            })
+            .end((error, res) => {
+                if (error) done({
+                    error
+                });
+
+                User.findById(users[1]._id).then(user => {
+                    expect(user.tokens[0]).toMatchObject({
+                        access: 'auth',
+                        token: res.headers['x-auth']
+                    });
+                    done();
+                }).catch(err => done({
+                    error: err
+                }));
+            });
+    });
+
+    it('Should reject invalid user', done => {
+        request(app)
+            .post('/users/login')
+            .send({
+                email: users[1].email,
+                password: 'invalidPassword'
+            })
+            .expect(400)
+            .expect(res => {
+                expect(res.headers['x-auth']).toBeFalsy();
+            })
+            .end((error, res) => {
+                if (error) done({
+                    error
+                });
+
+                User.findById(users[1]._id).then(user => {
+                    expect(user.tokens.length).toBe(0);
+                    done();
+                }).catch(err => done({
+                    error: err
+                }));
+
+            });
+    });
+
+});
