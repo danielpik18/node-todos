@@ -62,6 +62,18 @@ UserSchema.methods.generateAuthToken = function () {
     });
 };
 
+UserSchema.methods.logout = function (token) {
+
+    return this.updateOne(({
+        $pull: {
+            tokens: {
+                token
+            }
+        }
+    }));
+
+};
+
 //STATIC METHODS (Model methods)
 UserSchema.statics.findByToken = function (token) {
     let decodedUser;

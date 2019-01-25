@@ -109,6 +109,20 @@ app.patch('/todos/:id', (req, res) => {
 
 //  --** USERS **--
 
+//GET/users/me
+app.get('/users/me', authenticate, (req, res) => {
+    res.send(req.user);
+});
+
+//Set up port
+app.listen(port, () => {
+    console.log(`App hosted on port ${port}`);
+});
+
+module.exports = {
+    app
+};
+
 //POST /users
 app.post('/users', (req, res) => {
     let body = _.pick(req.body, ['email', 'password']);
@@ -138,16 +152,13 @@ app.post('/users/login', (req, res) => {
     });
 });
 
-//GET/users/me
-app.get('/users/me', authenticate, (req, res) => {
-    res.send(req.user);
-});
+//DELETE/users/logout
+app.delete('/users/logout', authenticate, (req, res) => {
 
-//Set up port
-app.listen(port, () => {
-    console.log(`App hosted on port ${port}`);
-});
+    req.user.logout(req.token).then(() => {
+        res.status(200).send();
+    }).catch(error => res.status(400).send({
+        error
+    }));
 
-module.exports = {
-    app
-};
+});
