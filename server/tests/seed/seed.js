@@ -12,19 +12,6 @@ const {
     User
 } = require('../../schemas/UserSchema');
 
-const todos = [{
-        _id: new ObjectID(),
-        description: 'First test todo'
-    },
-    {
-        _id: new ObjectID(),
-        description: 'Second test fker',
-        done: true,
-        completedAt: 3004
-    }
-
-];
-
 const user1id = new ObjectID();
 const user2id = new ObjectID();
 
@@ -42,8 +29,31 @@ const users = [{
 }, {
     _id: user2id,
     email: 'testuserTWO@fk.gay',
-    password: 'datpasstho'
+    password: 'datpasstho',
+    tokens: [{
+        access: 'auth',
+        token: jwt.sign({
+            _id: user2id,
+            access: 'auth'
+        }, 'abc123').toString()
+    }]
 }];
+
+
+const todos = [{
+        _id: new ObjectID(),
+        _creator: user1id,
+        description: 'First test todo'
+    },
+    {
+        _id: new ObjectID(),
+        _creator: user2id,
+        description: 'Second test fker',
+        done: true,
+        completedAt: 3004
+    }
+
+];
 
 const populateTodos = done => {
     Todo.deleteMany({}).then(() => {

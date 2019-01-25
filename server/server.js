@@ -32,9 +32,10 @@ const port = process.env.PORT || 3000;
 //  --** TODOS **--
 
 //ADD NEW TODO
-app.post('/todos', (req, res) => {
+app.post('/todos', authenticate, (req, res) => {
 
     let newTodo = new Todo({
+        _creator: req.user._id,
         description: req.body.description
     });
 
@@ -46,8 +47,10 @@ app.post('/todos', (req, res) => {
 
 });
 
-app.get('/todos', (req, res) => {
-    Todo.find().then(todos => {
+app.get('/todos', authenticate, (req, res) => {
+    Todo.find({
+        _creator: req.user._id
+    }).then(todos => {
         res.send({
             todos
         });
@@ -57,8 +60,11 @@ app.get('/todos', (req, res) => {
 });
 
 //GET/todos/:id
-app.get('/todos/:id', (req, res) => {
-    Todo.findById(req.params.id).then(todo => {
+app.get('/todos/:id', authenticate, (req, res) => {
+    Todo.findOne({
+        _id: req.params.id,
+        _creator: req.user._id
+    }).then(todo => {
         if (!todo) return res.status(404).send();
         res.send({
             todo
@@ -69,8 +75,11 @@ app.get('/todos/:id', (req, res) => {
 });
 
 // /DELETE/todos/:id
-app.delete('/todos/:id', (req, res) => {
-    Todo.findByIdAndDelete(req.params.id).then(todo => {
+app.delete('/todos/:id', authenticate, (req, res) => {
+    Todo.findOneAndDelete({
+        _id: req.params.id,
+        _creator: req.user._id
+    }).then(todo => {
         if (!todo) return res.status(404).send();
         res.send({
             todo
@@ -80,7 +89,7 @@ app.delete('/todos/:id', (req, res) => {
     }));
 })
 
-app.patch('/todos/:id', (req, res) => {
+app.patch('/todos/:id', authenticate, (req, res) => {
     let id = req.params.id;
     let body = _.pick(req.body, ['done', 'description']);
 
@@ -91,7 +100,10 @@ app.patch('/todos/:id', (req, res) => {
         body.completedAt = null;
     }
 
-    Todo.findByIdAndUpdate(id, {
+    Todo.findOneAndUpdate({
+        _id: id,
+        _creator: req.user._id
+    }, {
         $set: body
     }, {
         new: true
